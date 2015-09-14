@@ -11,4 +11,10 @@
 	</string-array>
 	<string name="sort_movies_by">Sort movies by</string>
 	<string name="default_sort_order">popular</string>
+	<string-array name="action_list">
+		<item>Mercury</item>
+		<item>Venus</item>
+		<item>Earth</item>
+	</string-array>
+
 </resources>

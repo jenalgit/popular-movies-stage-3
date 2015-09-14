@@ -50,9 +50,13 @@ public class APIClient implements RequestInterceptor {
         return  result.getResults();
     }
 
-    public MovieModel getMovieDetails(String id) {
+    public MovieModel getMovieDetails(long id) {
         MovieModel m=getApi().getMovieDetails(id);
         return m;
+    }
+
+    public List<TrailerModel> getMovieTrailers(long id) {
+        return getApi().getMovieTrailers(id).getResults();
     }
 
     private   interface APIMethods{
@@ -61,6 +65,10 @@ public class APIClient implements RequestInterceptor {
         @GET("/movie/top_rated")
         ListResponse getTopRated();
         @GET("/movie/{id}")
-        MovieModel getMovieDetails(@Path("id") String id);
+        MovieModel getMovieDetails(@Path("id") long id);
+        @GET("/movie/{id}/videos")
+        TrailersResponse getMovieTrailers(@Path("id") long id);
+
+
     }
 }

@@ -4,19 +4,24 @@ import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Loader;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.GridView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -24,10 +29,16 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import de.greenrobot.dao.query.QueryBuilder;
+import stanislav.volnjanskij.popularmovies.MainActivity;
 import stanislav.volnjanskij.popularmovies.R;
 
+import stanislav.volnjanskij.popularmovies.ThisApplication;
 import stanislav.volnjanskij.popularmovies.api.APIClient;
 import stanislav.volnjanskij.popularmovies.api.MovieModel;
+import stanislav.volnjanskij.popularmovies.db.Movie;
+import stanislav.volnjanskij.popularmovies.db.MovieDao;
+import stanislav.volnjanskij.popularmovies.db.MoviesContentProvider;
 
 /**
  * A fragment representing a list of Items.
@@ -39,10 +50,13 @@ import stanislav.volnjanskij.popularmovies.api.MovieModel;
  */
 public class MoviesListFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<List<MovieModel>>{
-
+    public static final int POPULAR=1;
+    public static final int TOP_RATED=2;
+    public static final int FAVORITES=3;
+    public static final String LIST_TYPE="list_type";
     MovieModel[] data;
 
-
+    private int listType=0;
     /**
      * The fragment's ListView/GridView.
      */
@@ -68,8 +82,6 @@ public class MoviesListFragment extends Fragment implements
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-
-
 
     }
 
@@ -184,18 +196,45 @@ public class MoviesListFragment extends Fragment implements
             try {
 
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-                String order = prefs.getString("sort_order", "");
-                if (order.equals("top_rated")) {
-                    return APIClient.getInstance().getTopRated();
-                } else {
-                    return APIClient.getInstance().getPopular();
+                int listType= prefs.getInt(LIST_TYPE,POPULAR);
+
+                switch (listType){
+                    case TOP_RATED:
+                      if (ThisApplication.isConectedToInternet())   return APIClient.getInstance().getTopRated();
+                    case POPULAR:
+                        if (ThisApplication.isConectedToInternet())  return APIClient.getInstance().getPopular();
+                    case FAVORITES:
+                        Cursor cursor=getContext().getContentResolver().query(MoviesContentProvider.CONTENT_URI, null, null, null, null);
+                        ArrayList<MovieModel> list=new ArrayList<>();
+                        while(cursor.moveToNext()){
+                            MovieModel model=new MovieModel();
+                            model.setId(cursor.getLong( cursor.getColumnIndex(MovieDao.Properties.Id.columnName)));
+                            model.setTitle(cursor.getString(cursor.getColumnIndex(MovieDao.Properties.Title.columnName)));
+                            model.setPosterPath(cursor.getString(cursor.getColumnIndex(MovieDao.Properties.Poster_path.columnName)));
+                            model.setCachedPosterPath(cursor.getString(cursor.getColumnIndex(MovieDao.Properties.CachedPosterPath.columnName)));
+                            model.setOverview(cursor.getString(cursor.getColumnIndex(MovieDao.Properties.Overview.columnName)));
+                            model.setReleaseDate(cursor.getString(cursor.getColumnIndex(MovieDao.Properties.ReleaseDate.columnName)));
+                            model.setRuntime(cursor.getInt(cursor.getColumnIndex(MovieDao.Properties.Runtime.columnName)));
+                            model.setVoteAvarage(cursor.getString(cursor.getColumnIndex(MovieDao.Properties.VoteAvarage.columnName)));
+                            list.add(model);
+                        }
+                        return  list;
                 }
             }catch (Exception ex){
-
                 return new ArrayList<MovieModel>();
             }
+            return new ArrayList<MovieModel>();
         }
 
+    }
+
+    public void reload(){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        int t=prefs.getInt(LIST_TYPE,POPULAR);
+        if (listType!=t){
+            listType=t;
+            getLoaderManager().initLoader(0, null, MoviesListFragment.this).forceLoad();
+        }
     }
 
     public void setCallback(Callback callback) {

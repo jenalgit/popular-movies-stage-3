@@ -5,6 +5,8 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 /**
  * Created by Stas on 19.07.15.
  */
@@ -29,9 +31,10 @@ public class MovieModel implements Parcelable {
     private String voteAvarage;
     @SerializedName("release_date")
     private String releaseDate="";
-    private String id;
+    private long id;
     private int runtime;
     private String cachedPosterPath;
+    private List<TrailerModel> trailers;
 
     public MovieModel() {
 
@@ -39,7 +42,7 @@ public class MovieModel implements Parcelable {
 
     // parcel construtor
     protected MovieModel(Parcel p) {
-        id = p.readString();
+        id = p.readLong();
         overview = p.readString();
         posterPath = p.readString();
         title = p.readString();
@@ -47,6 +50,14 @@ public class MovieModel implements Parcelable {
         releaseDate=p.readString();
         runtime=p.readInt();
         cachedPosterPath=p.readString();
+    }
+
+    public List<TrailerModel> getTrailers() {
+        return trailers;
+    }
+
+    public void setTrailers(List<TrailerModel> trailers) {
+        this.trailers = trailers;
     }
 
     public String getCachedPosterPath() {
@@ -65,11 +76,11 @@ public class MovieModel implements Parcelable {
         this.releaseDate = releaseDate;
     }
 
-    public String getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -86,6 +97,9 @@ public class MovieModel implements Parcelable {
     }
 
     public void setPosterPath(String posterPath) {
+        this.posterPath = posterPath;
+    }
+    public void setposter_path(String posterPath) {
         this.posterPath = posterPath;
     }
 
@@ -124,7 +138,7 @@ public class MovieModel implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
+        dest.writeLong(id);
         dest.writeString(overview);
         dest.writeString(posterPath);
         dest.writeString(title);

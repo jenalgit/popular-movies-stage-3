@@ -23,7 +23,12 @@
 		android:layout_height="wrap_content"
 	    android:scaleType="centerCrop"
 		/>
-
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignTop="@id/poster"
+		android:layout_alignBottom="@id/poster"
+		android:background="@drawable/selector"/>
 
 
 </RelativeLayout>
