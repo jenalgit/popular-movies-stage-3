@@ -14,6 +14,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -77,6 +80,8 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        setHasOptionsMenu(true);
+
         rootView = inflater.inflate(R.layout.details_fragment, container, false);
 
         ButterKnife.bind(this, rootView);
@@ -105,6 +110,26 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
             addToFavoritedButton.setText(R.string.remove_from_favorites);
         }
         return rootView;
+    }
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // TODO Add your menu entries here
+        inflater.inflate(R.menu.menu_details, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (movie.getTrailers()!=null && movie.getTrailers().size()>0) {
+            TrailerModel trailer=movie.getTrailers().get(0);
+            Intent share = new Intent(android.content.Intent.ACTION_SEND);
+            share.setType("text/plain");
+            share.putExtra(Intent.EXTRA_SUBJECT,"Share:"+ trailer.getName());
+            share.putExtra(Intent.EXTRA_TEXT, Uri.parse("http://www.youtube.com/watch?v=" + trailer.getKey()));
+            startActivity(Intent.createChooser(share, getActivity().getString(R.string.share_trailer)));
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

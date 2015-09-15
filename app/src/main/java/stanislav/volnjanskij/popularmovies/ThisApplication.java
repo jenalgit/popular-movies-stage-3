@@ -6,6 +6,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import com.squareup.picasso.OkHttpDownloader;
+import com.squareup.picasso.Picasso;
+
 import stanislav.volnjanskij.popularmovies.db.DaoMaster;
 
 import stanislav.volnjanskij.popularmovies.db.DaoSession;
@@ -28,6 +31,12 @@ public class ThisApplication extends Application {
         daoSession=daoMaster.newSession();
         MoviesContentProvider.daoSession =daoSession;
 
+
+//picasso tuning
+        Picasso.Builder builder = new Picasso.Builder(this);
+        builder.downloader(new OkHttpDownloader(this,Integer.MAX_VALUE));
+        Picasso built = builder.build();
+        Picasso.setSingletonInstance(built);
 
         instance = this;
     }

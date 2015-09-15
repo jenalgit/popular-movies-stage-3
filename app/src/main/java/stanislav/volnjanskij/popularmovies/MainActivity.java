@@ -21,7 +21,7 @@ import stanislav.volnjanskij.popularmovies.api.MovieModel;
 import stanislav.volnjanskij.popularmovies.ui.movie_details.DetailsActivity;
 import stanislav.volnjanskij.popularmovies.ui.movie_details.DetailsFragment;
 import stanislav.volnjanskij.popularmovies.ui.movies_list.MoviesListFragment;
-import stanislav.volnjanskij.popularmovies.ui.settings.SettingsActivity;
+
 
 
 public class MainActivity extends AppCompatActivity implements MoviesListFragment.Callback {
@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity implements MoviesListFragmen
 
     boolean twoPane;
     private DetailsFragment detailsFragment;
-    private String currentOrder;
+
     private MovieModel movie;
     private MoviesListFragment movieListFragment;
 
@@ -86,44 +86,45 @@ public class MainActivity extends AppCompatActivity implements MoviesListFragmen
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = prefs.edit();
-        if (!ThisApplication.isConectedToInternet()) {
-            Toast.makeText(this, R.string.not_connected, Toast.LENGTH_LONG).show();
+
+        if (id == R.id.action_favorites
+                || id == R.id.action_top_rated
+                || id == R.id.action_popular) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor editor = prefs.edit();
+            if (!ThisApplication.isConectedToInternet() && id!=R.id.action_favorites) {
+                Toast.makeText(this, R.string.not_connected, Toast.LENGTH_LONG).show();
+                return true;
+            }
+            switch (id) {
+                case R.id.action_favorites:
+                    getSupportActionBar().setTitle(R.string.favorites);
+                    editor.putInt(MoviesListFragment.LIST_TYPE, MoviesListFragment.FAVORITES);
+                    break;
+                case R.id.action_popular:
+                    getSupportActionBar().setTitle(R.string.popular_movies);
+                    editor.putInt(MoviesListFragment.LIST_TYPE, MoviesListFragment.POPULAR);
+                    break;
+                case R.id.action_top_rated:
+                    getSupportActionBar().setTitle(R.string.top_rated_movies);
+                    editor.putInt(MoviesListFragment.LIST_TYPE, MoviesListFragment.TOP_RATED);
+                    break;
+
+            }
+            editor.commit();
+            movieListFragment.reload();
             return true;
         }
-        switch (id) {
-            case R.id.action_favorites:
-                getSupportActionBar().setTitle(R.string.favorites);
-                editor.putInt(MoviesListFragment.LIST_TYPE, MoviesListFragment.FAVORITES);
-                break;
-            case R.id.action_popular:
-                getSupportActionBar().setTitle(R.string.popular_movies);
-                editor.putInt(MoviesListFragment.LIST_TYPE, MoviesListFragment.POPULAR);
-                break;
-            case R.id.action_top_rated:
-                getSupportActionBar().setTitle(R.string.top_rated_movies);
-                editor.putInt(MoviesListFragment.LIST_TYPE, MoviesListFragment.TOP_RATED);
-                break;
-
-        }
-        editor.commit();
-        movieListFragment.reload();
-        return true;
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String order = prefs.getString("sort_order", "");
-        if (currentOrder == null) currentOrder = order;
         // remove details if sort order changed
-        if (twoPane && !currentOrder.equals(order)) {
+        if (twoPane ) {
             if (detailsFragment == null) {
                 detailsFragment = (DetailsFragment) getFragmentManager().findFragmentByTag("DETAILS");
             }

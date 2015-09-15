@@ -24,10 +24,7 @@
             android:name="stanislav.volnjanskij.popularmovies.ui.movie_details.DetailsActivity"
             android:label="@string/title_activity_details" >
         </activity>
-        <activity
-            android:name="stanislav.volnjanskij.popularmovies.ui.settings.SettingsActivity"
-            android:label="@string/title_activity_settings" >
-        </activity>
+
 
         <provider
             android:name=".db.MoviesContentProvider"

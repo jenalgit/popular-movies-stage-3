@@ -70,7 +70,7 @@ public class MoviesListFragment extends Fragment implements
     private MoviesListAdapter mAdapter;
     private View rootView;
     private Callback callback;
-    private String currentOrder;
+
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -95,10 +95,9 @@ public class MoviesListFragment extends Fragment implements
     public void onStart() {
         super.onStart();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String order = prefs.getString("sort_order", "");
-        if (currentOrder==null) currentOrder=order;
+        int t=prefs.getInt(LIST_TYPE, POPULAR);
         // reload list if settings are changed
-        if (!currentOrder.equals(order)){
+        if (listType!=t){
             getLoaderManager().initLoader(0, null, MoviesListFragment.this).forceLoad();
         }
     }
@@ -133,6 +132,7 @@ public class MoviesListFragment extends Fragment implements
                 if (data==null){
                     getLoaderManager().initLoader(0, null, MoviesListFragment.this).forceLoad();
                 }else{
+                    mAdapter.clear();
                     mAdapter.addAll(data);
                     mAdapter.notifyDataSetChanged();
                 }
@@ -165,15 +165,14 @@ public class MoviesListFragment extends Fragment implements
 
     @Override
     public void onLoadFinished(Loader<List<MovieModel>> loader, List<MovieModel> loadedData) {
-        if (loadedData.size()==0) {
-            Toast.makeText(getActivity(),getResources().getString(R.string.network_error),Toast.LENGTH_LONG).show();
-            return;
-        }
+
         mAdapter.clear();
         mAdapter.addAll(loadedData);
         this.data=new MovieModel[loadedData.size()];
         loadedData.toArray(this.data);
         mAdapter.notifyDataSetChanged();
+        gridView.setSelection(0);
+        gridView.smoothScrollToPosition(0);
     }
 
     @Override
@@ -234,6 +233,7 @@ public class MoviesListFragment extends Fragment implements
         if (listType!=t){
             listType=t;
             getLoaderManager().initLoader(0, null, MoviesListFragment.this).forceLoad();
+
         }
     }
 
