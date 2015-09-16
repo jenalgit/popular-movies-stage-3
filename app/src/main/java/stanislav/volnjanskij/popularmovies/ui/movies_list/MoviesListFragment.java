@@ -24,6 +24,8 @@ import android.widget.GridView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.squareup.otto.Subscribe;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +41,8 @@ import stanislav.volnjanskij.popularmovies.api.MovieModel;
 import stanislav.volnjanskij.popularmovies.db.Movie;
 import stanislav.volnjanskij.popularmovies.db.MovieDao;
 import stanislav.volnjanskij.popularmovies.db.MoviesContentProvider;
+import stanislav.volnjanskij.popularmovies.eventbus.AddedToFavoritesEvent;
+import stanislav.volnjanskij.popularmovies.eventbus.RemovedFromFavoritesEvent;
 
 /**
  * A fragment representing a list of Items.
@@ -105,6 +109,8 @@ public class MoviesListFragment extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        ThisApplication.getEventBus().register(this);
+
         rootView = inflater.inflate(R.layout.movie_list_fragment, container, false);
         ButterKnife.bind(this,rootView);
         mAdapter=new MoviesListAdapter(getActivity(),R.layout.movie_list_item);
@@ -239,5 +245,19 @@ public class MoviesListFragment extends Fragment implements
 
     public void setCallback(Callback callback) {
         this.callback = callback;
+    }
+// Handle event linked to favorites list
+    @Subscribe
+    public void onFavoriteAdded(AddedToFavoritesEvent event){
+        if (listType==FAVORITES){
+            mAdapter.add(event.getMovie());
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+    @Subscribe
+    public  void onFavoritesRemoved(RemovedFromFavoritesEvent event){
+
+        mAdapter.remove(event.getMovie());
+        mAdapter.notifyDataSetChanged();
     }
 }

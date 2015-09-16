@@ -40,6 +40,8 @@ import stanislav.volnjanskij.popularmovies.api.TrailerModel;
 import stanislav.volnjanskij.popularmovies.db.Movie;
 import stanislav.volnjanskij.popularmovies.db.MovieDao;
 import stanislav.volnjanskij.popularmovies.db.MoviesContentProvider;
+import stanislav.volnjanskij.popularmovies.eventbus.AddedToFavoritesEvent;
+import stanislav.volnjanskij.popularmovies.eventbus.RemovedFromFavoritesEvent;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -226,11 +228,16 @@ public class DetailsFragment extends Fragment implements LoaderManager.LoaderCal
             values.put(MovieDao.Properties.Runtime.columnName, movie.getRuntime());
             getActivity().getContentResolver().insert(MoviesContentProvider.CONTENT_URI, values);
             addToFavoritedButton.setText(R.string.remove_from_favorites);
+            // Post event to event bus to notify movielist fragment
+            ThisApplication.getEventBus().post(new AddedToFavoritesEvent(movie));
+            isFavorite=true;
         }else{
             Uri uri=ContentUris.withAppendedId(MoviesContentProvider.CONTENT_URI, movie.getId());
             getActivity().getContentResolver().delete(uri,null,null);
             addToFavoritedButton.setText(R.string.add_to_favorites);
             isFavorite=false;
+            // Post event to event bus to notify movielist fragment
+            ThisApplication.getEventBus().post(new RemovedFromFavoritesEvent(movie));
 
         }
 

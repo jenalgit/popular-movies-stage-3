@@ -147,6 +147,16 @@ public class MovieModel implements Parcelable {
         dest.writeInt(runtime);
         dest.writeString(cachedPosterPath);
     }
-
+    //overiding equals
+    @Override
+    public boolean equals (Object obj)
+    {
+        if (this==obj) return true;
+        if (this == null) return false;
+        if (this.getClass() != obj.getClass()) return false;
+        // Class name is Employ & have lastname
+        MovieModel movie = (MovieModel) obj ;
+        return movie.getId()==this.getId();
+    }
 
 }

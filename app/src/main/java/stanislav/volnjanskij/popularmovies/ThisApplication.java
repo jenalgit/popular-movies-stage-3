@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import com.squareup.otto.Bus;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 
@@ -21,7 +22,7 @@ public class ThisApplication extends Application {
 
     static ThisApplication instance;
     static DaoSession daoSession;
-
+    static Bus bus;
     @Override
     public void onCreate() {
         super.onCreate();
@@ -39,6 +40,7 @@ public class ThisApplication extends Application {
         Picasso.setSingletonInstance(built);
 
         instance = this;
+        bus = new Bus();
     }
 
     public static boolean isConectedToInternet() {
@@ -51,5 +53,9 @@ public class ThisApplication extends Application {
     }
     public static DaoSession getDaoSession(){
         return daoSession;
+    }
+
+    public static Bus getEventBus() {
+        return bus;
     }
 }
